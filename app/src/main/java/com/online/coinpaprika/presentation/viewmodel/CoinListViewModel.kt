@@ -6,6 +6,7 @@ import com.online.coinpaprika.data.model.CoinList
 import com.online.coinpaprika.domain.usecases.CoinListUseCase
 import com.online.coinpaprika.utils.Constants
 import com.online.coinpaprika.utils.ErrorCode
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -30,6 +31,7 @@ class CoinListViewModel(
     /**
      * Filter the coin based on the tag search keyword
      */
+    @OptIn(FlowPreview::class)
     val searchResult = searchText
         .debounce(1000L)
         .onEach { _isSearching.update { true }}

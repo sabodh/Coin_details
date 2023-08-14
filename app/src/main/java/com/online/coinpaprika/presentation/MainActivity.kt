@@ -2,12 +2,7 @@ package com.online.coinpaprika.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -28,16 +23,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Create the ServiceBuilder interface
         val serviceBuilder = ServiceBuilder.buildService(ServiceEndPoints::class.java)
+        // Created the repository
         val repository = CoinRepositoryImpl(serviceBuilder)
+        // Created use-cases
         val coinListUseCase = CoinListUseCase(repository)
         val coinDetailsUseCase = CoinDetailsUseCase(repository)
+        // created custom factory class for view models
         val viewModelFactory = CoinListViewModelFactory(coinListUseCase)
         val viewModelDetailsViewModelFactory = CoinDetailsViewModelFactory(coinDetailsUseCase)
         setContent {
             CoinpaprikaTheme {               
                 navController = rememberNavController()
-                SetupNavGraph(navController = navController, viewModelFactory, viewModelDetailsViewModelFactory)
+                SetupNavGraph(navController = navController,
+                    coinListViewModelFactory = viewModelFactory,
+                    coinDetailsViewModelFactory = viewModelDetailsViewModelFactory)
             }
         }
     }
@@ -48,15 +49,5 @@ class MainActivity : ComponentActivity() {
 fun DefaultPreview() {
     CoinpaprikaTheme {
 
-    }
-}
-
-@Composable
-fun LoadProgressbar() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
     }
 }

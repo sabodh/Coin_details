@@ -78,3 +78,12 @@ fun ShowSnackBar(snackbarHostState: SnackbarHostState, message: String) {
         )
     }
 }
+@Composable
+fun LoadProgressbar() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}

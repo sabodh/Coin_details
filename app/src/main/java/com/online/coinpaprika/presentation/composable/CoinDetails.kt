@@ -1,6 +1,5 @@
 package com.online.coinpaprika.presentation.composable
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,7 +23,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.online.coinpaprika.data.api.ServiceResponse
 import com.online.coinpaprika.data.model.CoinDetails
-import com.online.coinpaprika.presentation.LoadProgressbar
 import com.online.coinpaprika.presentation.theme.BackgroundGray
 import com.online.coinpaprika.presentation.theme.CoinpaprikaTheme
 import com.online.coinpaprika.presentation.viewmodel.CoinDetailsViewModel
