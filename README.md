@@ -27,5 +27,10 @@ A list of technologies/ features used within the project:
 6. Provide some kind of refresh option that reloads the list.
 7. Display an error message if the list cannot be loaded (e.g., no network).
 
+# Prerequisites 
+1. compiler sdk 33
+2. java sdk 11
+3. gradle 7.5
+
 
 
