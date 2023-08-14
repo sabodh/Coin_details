@@ -9,5 +9,7 @@ object Constants {
     const val COMPOSABLE_HOME_SCREEN = "home_screen"
     const val COMPOSABLE_DETAILS_SCREEN = "details_screen"
     const val COIN_ID = "id"
-    const val DISPLAY_LIST_ITEMS = 2
+    const val DISPLAY_LIST_ITEMS = 8
+    const val COMMON_ERROR_MESSAGE = "Unknown error"
+
 }

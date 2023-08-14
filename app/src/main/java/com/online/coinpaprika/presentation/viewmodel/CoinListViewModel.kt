@@ -4,11 +4,13 @@ import androidx.lifecycle.viewModelScope
 import com.online.coinpaprika.data.api.ServiceResponse
 import com.online.coinpaprika.data.model.CoinList
 import com.online.coinpaprika.domain.usecases.CoinListUseCase
+import com.online.coinpaprika.utils.Constants
+import com.online.coinpaprika.utils.ErrorCode
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CoinListViewModel(
-    val coinListUseCase: CoinListUseCase
+    private val coinListUseCase: CoinListUseCase
 ) : ViewModel() {
 
     private val _coinsState = MutableStateFlow<ServiceResponse<CoinList>>(
@@ -69,7 +71,11 @@ class CoinListViewModel(
     fun getCoinList() {
         viewModelScope.launch {
             coinListUseCase().catch { e ->
-                _coinsState.value = ServiceResponse.Error(e.message ?: "Unknown Error")
+                _coinsState.value =
+                    ServiceResponse.Error(
+                        ErrorCode.UNKNOWN_ERROR.statusCode,
+                        e.message ?: Constants.COMMON_ERROR_MESSAGE
+                    )
             }.collect {
                 _coinsState.value = it
             }

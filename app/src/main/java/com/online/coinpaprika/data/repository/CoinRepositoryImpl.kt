@@ -6,7 +6,8 @@ import com.online.coinpaprika.data.api.ServiceResponse.*
 import com.online.coinpaprika.data.model.CoinDetails
 import com.online.coinpaprika.data.model.CoinList
 import com.online.coinpaprika.domain.repository.CoinRepository
-import com.online.coinpaprika.utils.CommonError.*
+import com.online.coinpaprika.utils.Constants.COMMON_ERROR_MESSAGE
+import com.online.coinpaprika.utils.ErrorCode.*
 import com.online.coinpaprika.utils.Constants.DISPLAY_LIST_ITEMS
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -25,28 +26,40 @@ class CoinRepositoryImpl(
      */
     override suspend fun getCoins(): Flow<ServiceResponse<CoinList>> {
         return flow {
-            val result = serviceEndPoints.getCoins()
-            if (result.isSuccessful) {
-                result.body()?.let {coinList->
-                    // reduce the list size to the mentioned size, its more than 6077 items in the list
-                    val limitedList = coinList.take(DISPLAY_LIST_ITEMS)
-                    // used to store new lists
-                    val mergedCoinList = CoinList()
-                    limitedList.forEach{ coinItem->
-                        val detailsResponse =  serviceEndPoints.getCoinDetails(coinItem.id)
-                        if(detailsResponse.isSuccessful){
-                            detailsResponse.body()?.let {coinDetails ->
-                                mergedCoinList.add(coinDetails)
-                            } ?: emit(Error(NETWORK_ERROR.toString()))
-                        }else{
-                            emit(Error(result.errorBody()?.string() ?: UNKNOWN_ERROR.toString()))
+            try {
+                val result = serviceEndPoints.getCoins()
+                if (result.isSuccessful) {
+                    result.body()?.let { coinList ->
+                        // reduce the list size to the mentioned size, its more than 6077 items in the list
+                        val limitedList = coinList.take(DISPLAY_LIST_ITEMS)
+                        // used to store new lists
+                        val mergedCoinList = CoinList()
+                        limitedList.forEach { coinItem ->
+                            val detailsResponse = serviceEndPoints.getCoinDetails(coinItem.id)
+                            if (detailsResponse.isSuccessful) {
+                                detailsResponse.body()?.let { coinDetails ->
+                                    mergedCoinList.add(coinDetails)
+                                } ?: emit(Error(UNKNOWN_ERROR.statusCode, COMMON_ERROR_MESSAGE))
+                            } else {
+                                emit(
+                                    Error(
+                                        result.code(),
+                                        result.errorBody()?.string() ?: COMMON_ERROR_MESSAGE
+                                    )
+                                )
+                            }
                         }
+                        emit(Success(mergedCoinList))
                     }
-                    emit(Success(mergedCoinList))
+                } else {
+                    emit(Error(result.code(), result.errorBody()?.string() ?: COMMON_ERROR_MESSAGE))
                 }
-            }else{
-                emit(Error(result.errorBody()?.string() ?: UNKNOWN_ERROR.toString()))
+            } catch (e: UnknownHostException) {
+                emit(Error(NETWORK_ERROR.statusCode, e.message ?: COMMON_ERROR_MESSAGE))
+            } catch (exception: java.lang.Exception) {
+                emit(Error(EXCEPTION.statusCode, exception.message ?: COMMON_ERROR_MESSAGE))
             }
+
         }.flowOn(defaultDispatcher)
     }
 
@@ -58,16 +71,16 @@ class CoinRepositoryImpl(
             try {
                 val result = serviceEndPoints.getCoinDetails(coinId)
                 if (result.isSuccessful) {
-                    result.body()?.let {coinDetails->
+                    result.body()?.let { coinDetails ->
                         emit(Success(coinDetails))
-                    } ?: emit(Error(NETWORK_ERROR.toString()))
+                    } ?: emit(Error(UNKNOWN_ERROR.statusCode, COMMON_ERROR_MESSAGE))
                 } else {
-                    emit(Error(result.errorBody()?.string() ?: UNKNOWN_ERROR.toString()))
+                    emit(Error(result.code(), result.errorBody()?.string() ?: COMMON_ERROR_MESSAGE))
                 }
             } catch (e: UnknownHostException) {
-                emit(Error(NETWORK_ERROR.toString()))
+                emit(Error(NETWORK_ERROR.statusCode, e.message ?: COMMON_ERROR_MESSAGE))
             } catch (exception: java.lang.Exception) {
-                emit(Error(exception.message.toString()))
+                emit(Error(EXCEPTION.statusCode, exception.message ?: COMMON_ERROR_MESSAGE))
             }
         }.flowOn(defaultDispatcher)
     }

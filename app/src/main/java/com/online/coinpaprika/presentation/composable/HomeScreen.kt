@@ -1,5 +1,6 @@
 package com.online.coinpaprika.presentation.composable
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,17 +13,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.online.coinpaprika.R
 import com.online.coinpaprika.data.api.ServiceResponse
 import com.online.coinpaprika.data.model.CoinList
-import com.online.coinpaprika.presentation.loadProgressbar
+import com.online.coinpaprika.presentation.LoadProgressbar
+import com.online.coinpaprika.presentation.theme.BackgroundBlack
 import com.online.coinpaprika.presentation.viewmodel.CoinListViewModel
 import com.online.coinpaprika.presentation.viewmodel.factory.CoinListViewModelFactory
+import com.online.coinpaprika.utils.ErrorCode
 import kotlinx.coroutines.launch
 
-const val TAG = "Home Screen"
+
 
 @Composable
 fun HomeScreen(
@@ -55,30 +60,36 @@ fun ShowCoinList(
         getCoinList(coinViewModel)
     }
 
+    val context = LocalContext.current
+
     val state = rememberPullRefreshState(refreshing, ::refresh)
     val response = coinViewModel.coinsState.collectAsState()
     when (response.value) {
         is ServiceResponse.Error -> {
-            Log.e(TAG, "error${(response.value as ServiceResponse.Error).message}")
             refreshing = false
             HomeCoinList(
                 navController = navController,
                 state = state,
                 coinViewModel = coinViewModel
             )
-            ShowSnackBar(SnackbarHostState(), "Unknown Error")
+            ShowSnackBar(
+                SnackbarHostState(),
+                getErrorMessage(
+                    context,
+                    (response.value as ServiceResponse.Error).errorCode,
+                    (response.value as ServiceResponse.Error).message
+                )
+            )
         }
         ServiceResponse.Loading -> {
-            Log.e(TAG, "Loading")
-            loadProgressbar()
+            LoadProgressbar()
         }
         is ServiceResponse.Success -> {
-            Log.e(TAG, "Success")
             refreshing = false
             // getting the data from response
             val list = (response.value as ServiceResponse.Success<CoinList>).data
             // set the data for list and used for search as well
-            LaunchedEffect(response.value){
+            LaunchedEffect(response.value) {
                 coinViewModel.provideCoinList(list)
             }
             HomeCoinList(
@@ -108,22 +119,30 @@ fun HomeCoinList(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.LightGray),
+            .background(BackgroundBlack),
         verticalArrangement = Arrangement.Top
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         TextField(value = searchText, onValueChange = coinViewModel::onSearchTextChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp),
+                .background(Color.Transparent)
+                .padding(start = 6.dp, end = 6.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                focusedIndicatorColor = Color.Black,
+                unfocusedIndicatorColor = BackgroundBlack,
+                cursorColor = Color.Black
+            ),
+
             placeholder = { Text(text = "Search") })
         if (isSearching) {
-            loadProgressbar()
+            LoadProgressbar()
         } else {
             Box(
                 modifier = Modifier
                     .pullRefresh(state)
-                    .background(Color.LightGray),
+                    .background(BackgroundBlack),
                 contentAlignment = Alignment.BottomCenter,
 
                 ) {
@@ -136,7 +155,7 @@ fun HomeCoinList(
                 PullRefreshIndicator(
                     refreshing, state,
                     Modifier
-                        .align(Alignment.TopCenter)     ,
+                        .align(Alignment.TopCenter),
                     backgroundColor = Color.Transparent
                 )
             }
@@ -153,4 +172,21 @@ fun HomeCoinList(
  */
 fun getCoinList(coinViewModel: CoinListViewModel) {
     coinViewModel.getCoinList()
+}
+
+fun getErrorMessage(context: Context, error: Int, message: String = ""): String {
+    return when (error) {
+        ErrorCode.NETWORK_ERROR.statusCode -> {
+            context.getString(R.string.error_network)
+        }
+        ErrorCode.UNKNOWN_ERROR.statusCode -> {
+            context.getString(R.string.error_unknown)
+        }
+        ErrorCode.SERVER_ERROR.statusCode -> {
+            context.getString(R.string.error_server)
+        }
+        else -> {
+            message
+        }
+    }
 }

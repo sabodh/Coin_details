@@ -10,8 +10,6 @@ data class CoinDetails(
     val is_active: Boolean,
     val is_new: Boolean,
     val last_data_at: String,
-    val links: Links,
-    val links_extended: List<LinksExtended>,
     val logo: String,
     val message: String,
     val name: String,
@@ -22,7 +20,32 @@ data class CoinDetails(
     val started_at: String,
     val symbol: String,
     val tags: List<Tag>,
-    val team: List<Team>,
-    val type: String,
-    val whitepaper: Whitepaper
+    val type: String
 )
+{
+    companion object {
+        val default: CoinDetails
+            get() = CoinDetails(
+                description = "",
+                development_status = "",
+                first_data_at = "",
+                hardware_wallet = false,
+                hash_algorithm = "",
+                id = "bit-coin",
+                is_active = false,
+                is_new = false,
+                last_data_at = "",
+                logo = "",
+                message = "",
+                name = "BitCoin",
+                open_source = false,
+                org_structure = "",
+                proof_type = "",
+                rank = 0,
+                started_at = "",
+                symbol = "",
+                tags = emptyList(),
+                type = ""
+            )
+    }
+}

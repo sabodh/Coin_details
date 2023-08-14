@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.unit.dp
 import com.online.coinpaprika.data.model.CoinDetails
+import com.online.coinpaprika.presentation.theme.CardColor
+import com.online.coinpaprika.presentation.theme.CardColorText
 
 /**
  * Used for Coin list
@@ -20,7 +22,7 @@ import com.online.coinpaprika.data.model.CoinDetails
 fun CoinListItem(coin: CoinDetails, selectedCoin: (CoinDetails) -> Unit) {
     Card(
         modifier = Modifier
-            .padding(2.dp)
+            .padding(1.dp)
             .fillMaxWidth()
             .clickable { selectedCoin(coin) },
         elevation = 2.dp,
@@ -28,7 +30,7 @@ fun CoinListItem(coin: CoinDetails, selectedCoin: (CoinDetails) -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White),
+                .background(CardColor),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -50,7 +52,7 @@ fun CardText(coin: CoinDetails) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(CardColorText)
             .padding(all = 15.dp),
         verticalArrangement = Arrangement.Center
 

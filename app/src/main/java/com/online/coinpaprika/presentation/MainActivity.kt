@@ -5,12 +5,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.online.coinpaprika.data.api.ServiceBuilder
@@ -20,14 +18,13 @@ import com.online.coinpaprika.domain.usecases.CoinDetailsUseCase
 import com.online.coinpaprika.domain.usecases.CoinListUseCase
 import com.online.coinpaprika.presentation.composable.SetupNavGraph
 import com.online.coinpaprika.presentation.theme.CoinpaprikaTheme
-import com.online.coinpaprika.presentation.viewmodel.CoinListViewModel
 import com.online.coinpaprika.presentation.viewmodel.factory.CoinDetailsViewModelFactory
 import com.online.coinpaprika.presentation.viewmodel.factory.CoinListViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var navController: NavHostController
+    private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +52,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Composable
-fun loadProgressbar() {
+fun LoadProgressbar() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
