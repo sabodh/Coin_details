@@ -26,11 +26,13 @@ A list of technologies/ features used within the project:
 5. Display any extra coin info in some kind of popup/fragment when a coin entry is clicked, based on the second API request, with the said ID as the query.
 6. Provide some kind of refresh option that reloads the list.
 7. Display an error message if the list cannot be loaded (e.g., no network).
+8. ** Coin list entries restricted to 8 items, due to the restrictions over the limit of api calls. Please modify it using Constants.DISPLAY_LIST_ITEMS
+
 
 # Prerequisites 
-1. compiler sdk 33
-2. java sdk 11
-3. gradle 7.5
+1. Compiler android sdk 33
+2. Java sdk 11
+3. Gradle 7.5
 
 
 
