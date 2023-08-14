@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.online.coinpaprika.data.api.ServiceResponse
@@ -42,7 +41,6 @@ fun HomeScreen(
 fun ShowCoinList(
     navController: NavController, coinViewModel: CoinListViewModel
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
 
@@ -51,6 +49,7 @@ fun ShowCoinList(
         getCoinList(coinViewModel)
     }
 
+    // pull to refresh
     fun refresh() = refreshScope.launch {
         refreshing = true
         getCoinList(coinViewModel)
@@ -65,10 +64,9 @@ fun ShowCoinList(
             HomeCoinList(
                 navController = navController,
                 state = state,
-                coinList = CoinList(),
                 coinViewModel = coinViewModel
             )
-            ShowSnackBar(snackbarHostState, "Unknown Error")
+            ShowSnackBar(SnackbarHostState(), "Unknown Error")
         }
         ServiceResponse.Loading -> {
             Log.e(TAG, "Loading")
@@ -77,12 +75,15 @@ fun ShowCoinList(
         is ServiceResponse.Success -> {
             Log.e(TAG, "Success")
             refreshing = false
+            // getting the data from response
             val list = (response.value as ServiceResponse.Success<CoinList>).data
-            coinViewModel.setCoinDetails(list)
+            // set the data for list and used for search as well
+            LaunchedEffect(response.value){
+                coinViewModel.provideCoinList(list)
+            }
             HomeCoinList(
                 navController = navController,
                 state = state,
-                coinList = list,
                 coinViewModel = coinViewModel
             )
         }
@@ -95,12 +96,15 @@ fun HomeCoinList(
     navController: NavController,
     state: PullRefreshState,
     refreshing: Boolean = false,
-    coinList: CoinList, coinViewModel: CoinListViewModel
+    coinViewModel: CoinListViewModel
 ) {
     val searchText by coinViewModel.searchText.collectAsState()
     val coinDetails by coinViewModel.searchResult.collectAsState()
     val isSearching by coinViewModel.isSearching.collectAsState()
-    Log.e(TAG, "coinDetails: "+coinDetails.size)
+    val convertedCoinList = CoinList().apply {
+        addAll(coinDetails)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,9 +113,10 @@ fun HomeCoinList(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         TextField(value = searchText, onValueChange = coinViewModel::onSearchTextChange,
-            modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp),
             placeholder = { Text(text = "Search") })
-
         if (isSearching) {
             loadProgressbar()
         } else {
@@ -124,7 +129,7 @@ fun HomeCoinList(
                 ) {
 
                 // Coin List items
-                CoinList(coin = coinList) {
+                CoinList(coin = convertedCoinList) {
                     navController.navigate(route = Screens.Details.passId(it.id))
                 }
                 // pull to refresh screen

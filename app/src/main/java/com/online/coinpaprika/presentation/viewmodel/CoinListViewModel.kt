@@ -1,12 +1,9 @@
 package com.online.coinpaprika.presentation.viewmodel
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.online.coinpaprika.data.api.ServiceResponse
-import com.online.coinpaprika.data.model.CoinDetails
 import com.online.coinpaprika.data.model.CoinList
 import com.online.coinpaprika.domain.usecases.CoinListUseCase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -26,64 +23,49 @@ class CoinListViewModel(
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    private var _coinList = CoinList()
-    fun setCoinDetails(list: CoinList) {
-        _coinList = list
-    }
+    private val _coinList = MutableStateFlow(CoinList())
 
-
-//    val filteredCoins = filterCoinsByTag(_coinList, "Mining")
-
-    val searchCoins = MutableStateFlow(_coinList)
-
-
-    fun filterCoinsByTag(coinList: List<CoinDetails>, tagName: String): List<CoinDetails> {
-        return coinList.filter { coin ->
-            coin.tags.any { tag -> tag.name == tagName }
-        }
-    }
-
-
+    /**
+     * Filter the coin based on the tag search keyword
+     */
     val searchResult = searchText
-        .combine(searchCoins) { text, coins ->
+        .debounce(1000L)
+        .onEach { _isSearching.update { true }}
+        .combine(_coinList) { text, coins ->
             if (text.isBlank()) {
                 coins
             } else {
                 coins.filter {
-                    it.tags.any { tag -> tag.name == text }
+                    it.tags.any { tag ->
+                        tag.name.equals(text, ignoreCase = true)
+                    }
                 }
             }
-        }.stateIn(
+        }
+        .onEach { _isSearching.update { false }}
+        .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            searchCoins.value
+            _coinList.value
         )
 
-
-//    val searchResult = searchText
-//        .debounce(1000L)
-//        .onEach { _isSearching.update { true } }
-//        .combine(searchCoins) { text, coins ->
-//            if (text.isBlank()) {
-//                coins
-//            } else {
-////                delay(2000L)
-//                coins.filter {
-//                    it.tags.any { tag -> tag.name == text }
-//                }
-//            }
-//        }
-//        .onEach { _isSearching.update { false } }
-//        .stateIn(
-//            viewModelScope,
-//            SharingStarted.WhileSubscribed(5000),
-//            searchCoins.value
-//        )
-
+    /**
+     * Search the keyword
+     */
     fun onSearchTextChange(text: String) {
         _searchText.value = text
     }
 
+    /**
+     * For set the latest coin details
+     */
+    fun provideCoinList(coinList: CoinList){
+        _coinList.value = coinList
+    }
+
+    /**
+     * Get the coin details from server
+     */
     fun getCoinList() {
         viewModelScope.launch {
             coinListUseCase().catch { e ->

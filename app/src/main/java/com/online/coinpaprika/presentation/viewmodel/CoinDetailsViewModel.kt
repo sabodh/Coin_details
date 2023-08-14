@@ -16,10 +16,13 @@ class CoinDetailsViewModel(
     val coinDetailsState = _coinDetailsState
 
 
+    /**
+     * Get the coin details from server based on coinId.
+     */
     fun getCoinDetails(coinId: String){
         viewModelScope.launch {
             coinDetailsUseCase(coinId).catch {e->
-                _coinDetailsState.value = ServiceResponse.Error(e.message?:"Unknown Error")
+                _coinDetailsState.value = ServiceResponse.Error(e.message ?: "Unknown Error")
             }.collect{
                 _coinDetailsState.value = it
             }
