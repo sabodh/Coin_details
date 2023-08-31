@@ -16,7 +16,6 @@ object TestData {
             is_active = false,
             is_new = false,
             last_data_at = "",
-            links_extended = emptyList(),
             logo = "",
             message = "",
             name = "Ethereum",
@@ -27,7 +26,6 @@ object TestData {
             started_at = "",
             symbol = "",
             tags = emptyList(),
-            team = emptyList(),
             type = ""
         )
     private val coinDetails_2 = CoinDetails(
@@ -40,7 +38,6 @@ object TestData {
         is_active = false,
         is_new = false,
         last_data_at = "",
-        links_extended = emptyList(),
         logo = "",
         message = "",
         name = "Tether",
@@ -51,7 +48,6 @@ object TestData {
         started_at = "",
         symbol = "",
         tags = emptyList(),
-        team = emptyList(),
         type = ""
     )
     private val coinDetails_3 = CoinDetails(
@@ -64,8 +60,7 @@ object TestData {
         is_active = false,
         is_new = false,
         last_data_at = "",
-        links_extended = emptyList(),
-        logo = "",
+               logo = "",
         message = "",
         name = "Binance Coin",
         open_source = false,
@@ -75,7 +70,7 @@ object TestData {
         started_at = "",
         symbol = "",
         tags = emptyList(),
-        team = emptyList(),
+
         type = ""
     )
     private val coinDetailsList = listOf(
